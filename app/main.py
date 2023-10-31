@@ -1,19 +1,28 @@
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 import requests
 import json
 
 app = FastAPI()
 
 
-@app.post("/summarize", response_class=HTMLResponse)
-async def summarize(request: Request):
-    form_data = await request.form()
+class Text(BaseModel):
+    text: str
 
-    title = form_data.get("title")
-    content = form_data.get("content")
 
-    # Your summarization code here...
+class BaseResponse(BaseModel):
+    isSuccess: bool
+    code: int
+    message: str
+    data: str = None
+
+
+@app.post("/summarize", response_model=BaseResponse)
+async def summarize(text: Text):
+    title = text.text
+    content = text.text
+
     client_id = "k67mhpzvaq"
     client_secret = "1gdJOKKmebWbKdLFVsp3H3xQqS6eerIZi3Ys7jeq"
     headers = {
@@ -46,17 +55,17 @@ async def summarize(request: Request):
     if rescode == 200:
         result_json = response.json()
         summaries = result_json["summary"]
-        # Combine summaries into a single paragraph
         summarized_text = " ".join(summaries)
 
-        # html_content = f"<html><body><h2>Summarized Text:</h2><p>{summarized_text}</p></body></html>"
-
-        result = " ".join(response.text[12:-3].split("\\n"))
-
-        html_content = (
-            f"<html><body><h2>Summarized Text:</h2><p>{result}</p></body></html>"
+        return BaseResponse(
+            isSuccess=True,
+            code=200,
+            message="요청에 성공하였습니다.",
+            data=summarized_text
         )
-
-        return HTMLResponse(content=html_content, status_code=200)
     else:
-        raise HTTPException(status_code=rescode, detail=f"Error: {response.text}")
+        return BaseResponse(
+            isSuccess=False,
+            code=rescode,
+            message=f"Error: {response.text}"
+        )
