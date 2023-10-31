@@ -49,11 +49,9 @@ async def summarize(text: Text):
     }
 
     response = requests.post(url, data=json.dumps(data), headers=headers)
+    result_json = response.json()
 
-    rescode = response.status_code
-
-    if rescode == 200:
-        result_json = response.json()
+    if response.status_code == 200:
         summaries = result_json["summary"]
         summarized_text = " ".join(summaries)
 
@@ -64,8 +62,9 @@ async def summarize(text: Text):
             data=summarized_text
         )
     else:
+        error_message = result_json['error']['message']
         return BaseResponse(
             isSuccess=False,
-            code=rescode,
-            message=f"Error: {response.text}"
+            code=response.status_code,
+            message=error_message
         )
