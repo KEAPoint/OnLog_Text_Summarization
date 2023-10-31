@@ -1,3 +1,4 @@
+import sys
 import logging
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
@@ -6,8 +7,12 @@ import requests
 import json
 
 # 로깅 설정
-logging.basicConfig(filename='app.log', level=logging.INFO, 
-                    format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(message)s',
+    datefmt='%m/%d/%Y %I:%M:%S %p',
+    stream=sys.stdout  # 로그를 표준 출력으로 전송
+)
 
 app = FastAPI()
 
