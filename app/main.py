@@ -1,8 +1,13 @@
+import logging
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import requests
 import json
+
+# 로깅 설정
+logging.basicConfig(filename='app.log', level=logging.INFO, 
+                    format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 app = FastAPI()
 
@@ -51,11 +56,13 @@ async def summarize(text: Text):
     response = requests.post(url, data=json.dumps(data), headers=headers)
     result_json = response.json()
 
+    # Clova API 응답 로깅
+    logging.info(f"Clova API Response: {result_json}")
+
     if response.status_code == 200:
         summaries = result_json["summary"]
         summarized_text = " ".join(summaries)
-
-        return BaseResponse(
+        response_data = BaseResponse(
             isSuccess=True,
             code=200,
             message="요청에 성공하였습니다.",
@@ -63,8 +70,13 @@ async def summarize(text: Text):
         )
     else:
         error_message = result_json['error']['message']
-        return BaseResponse(
+        response_data = BaseResponse(
             isSuccess=False,
             code=response.status_code,
             message=error_message
         )
+    
+    # 요청과 응답 로깅
+    logging.info(f"Request: {text}, Response: {response_data}")
+    
+    return response_data
