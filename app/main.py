@@ -5,21 +5,6 @@ import json
 
 app = FastAPI()
 
-@app.get("/", response_class=HTMLResponse)
-async def read_root():
-    html_content = """
-    <html>
-        <body>
-            <form action="/summarize/" method="post">
-                <input type="text" name="title" placeholder="Title">
-                <textarea name="content" rows="5" placeholder="Content"></textarea>
-                <button>Summarize</button>
-            </form>
-        </body>
-    </html>
-    """
-    return HTMLResponse(content=html_content, status_code=200)
-
 
 @app.post("/summarize", response_class=HTMLResponse)
 async def summarize(request: Request):
