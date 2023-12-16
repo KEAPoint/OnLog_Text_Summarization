@@ -5,6 +5,11 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import requests
 import json
+from starlette.config import Config
+
+config = Config(".env")
+CLOVA_CLIIENT_ID = config('CLOVA_CLIIENT_ID')
+CLOVA_CLIIENT_SECRET = config('CLOVA_CLIIENT_SECRET')
 
 # 로깅 설정
 logging.basicConfig(
@@ -33,11 +38,9 @@ async def summarize(text: Text):
     title = text.text
     content = text.text
 
-    client_id = "k67mhpzvaq"
-    client_secret = "1gdJOKKmebWbKdLFVsp3H3xQqS6eerIZi3Ys7jeq"
     headers = {
-        "X-NCP-APIGW-API-KEY-ID": client_id,
-        "X-NCP-APIGW-API-KEY": client_secret,
+        "X-NCP-APIGW-API-KEY-ID": CLOVA_CLIIENT_ID,
+        "X-NCP-APIGW-API-KEY": CLOVA_CLIIENT_SECRET,
         "Content-Type": "application/json",
     }
 
@@ -80,8 +83,8 @@ async def summarize(text: Text):
             code=response.status_code,
             message=error_message
         )
-    
+
     # 요청과 응답 로깅
     logging.info(f"Request: {text}, Response: {response_data}")
-    
+
     return response_data
